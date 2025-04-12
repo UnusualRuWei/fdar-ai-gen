@@ -1,0 +1,11 @@
+name: myenv
+channels:
+  - defaults
+dependencies:
+  - python
+  - dotenv
+  - openai
+  - pip
+  - pip:
+    - requests
+    - flask
