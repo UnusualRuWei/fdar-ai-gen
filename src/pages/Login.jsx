@@ -6,6 +6,7 @@ function Login() {
   const [showRegister, setShowRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     // Load stored user credentials
@@ -32,7 +33,7 @@ function Login() {
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
         <div className="flex flex-col items-center mb-6">
           <img src="./src/components/Logo.png" alt="Logo" className="w-20" />
-          <h2 className="text-xl font-bold mt-2 text-gray-800">DiagAI™</h2>
+          <h2 className="text-xl font-bold mt-2 text-gray-800">FDARAI™</h2>
           <p className="text-gray-600 text-sm">Assistive AI FDAR Tool for Nursing Students.</p>
         </div>
         <h3 className="text-lg font-semibold text-center mb-4 text-gray-800">Sign In</h3>
@@ -90,13 +91,15 @@ function Login() {
 function RegisterModal({ close }) {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [registerFirstName, setFName] = useState("");
+  const [registerLastName, setLName] = useState("");
 
   const handleRegister = (e) => {
     e.preventDefault();
     if (registerEmail && registerPassword) {
       localStorage.setItem(
         "user",
-        JSON.stringify({ email: registerEmail, password: registerPassword })
+        JSON.stringify({ email: registerEmail, password: registerPassword, FName: registerFirstName, LName: registerLastName })
       );
       alert("Registration successful! You can now log in.");
       close();
@@ -111,10 +114,33 @@ function RegisterModal({ close }) {
         <div className="flex flex-col items-center mb-6">
           <img src="./src/components/Logo.png" alt="Logo" className="w-20" />
           <h3 className="text-lg font-semibold text-gray-800">Create an Account</h3>
-          <p className="text-gray-600 text-sm">Start using DiagAI™ today.</p>
+          <p className="text-gray-600 text-sm">Start using FDARAI™ today.</p>
         </div>
 
         <form onSubmit={handleRegister}>
+        <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">First Name</label>
+            <input
+              type="text"
+              placeholder="Enter your First Name"
+              className="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:ring focus:ring-purple-300"
+              required
+              value={registerFirstName}
+              onChange={(e) => setFName(e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Last Name</label>
+            <input
+              type="text"
+              placeholder="Enter your Last Name"
+              className="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:ring focus:ring-purple-300"
+              required
+              value={registerLastName}
+              onChange={(e) => setLName(e.target.value)}
+            />
+          </div>
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
