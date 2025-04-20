@@ -1,14 +1,31 @@
-
 const Step5FDARChart = ({ fdarData }) => {
-  const { patient, focus, data = [], action = [], response = [] } = fdarData;
+  const { nurse, patient, focus, data = [], action = [], response = [] } = fdarData;
 
   const rowCount = Math.max(data.length, action.length, response.length, 1);
+
+  const handleSaveFDAR = () => {
+    const savedFDARs = JSON.parse(localStorage.getItem("savedFDARs")) || [];
+    const newEntry = {
+      nurse,
+      patient: {
+        name: patient?.name || "Unknown",
+        datetime: patient?.datetime || "0000-00-00T00:00",
+      },
+      focus: focus || "N/A",
+      data: data || [],
+      action: action || [],
+      response: response || [],
+    };
+    const updatedFDARs = [...savedFDARs, newEntry];
+    localStorage.setItem("savedFDARs", JSON.stringify(updatedFDARs));
+    alert("FDAR form saved successfully!");
+  };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header Info */}
       <div className="bg-gray-100 p-4 rounded-lg shadow">
-        <p className="font-semibold">Nurse: {nurse?.currentUser}</p>
+        <p className="font-semibold">Nurse: {nurse}</p>
         <p className="font-semibold">Patient: {patient?.name}</p>
         <p className="font-semibold">Date & Time: {new Date(patient?.datetime).toLocaleString()}</p>
       </div>
@@ -44,9 +61,18 @@ const Step5FDARChart = ({ fdarData }) => {
         </tbody>
       </table>
 
-      <div className="text-center">
-        <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-          Save FDAR (To be implemented)
+      <div className="text-center space-x-4">
+        <button
+          onClick={handleSaveFDAR}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Save FDAR
+        </button>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Generate New
         </button>
       </div>
     </div>
