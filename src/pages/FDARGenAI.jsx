@@ -50,6 +50,8 @@ function FDARGenAI() {
   const [selectedAction, setSelectedAction] = useState("");
   const [customAction, setCustomAction] = useState("");
 
+  const [mainfocus, setFocus] = useState("");
+
   const [responseListOutput, setResponseListOutput] = useState([]);
   const [recentFDARs, setRecentFDARs] = useState([]);
 
@@ -114,15 +116,23 @@ function FDARGenAI() {
   };
 
   const handleActionConfirm = () => {
-    const payload = { section: "response", data: selectedAction || customAction, purpose: null };
+    const combinedActions = [...selectedAction];
+    if (customAction.trim()) {
+      combinedActions.push(customAction.trim());
+    }
+  
+    const payload = { section: "response", data: combinedActions, purpose: null };
+    console.log(payload);
+  
     const query = buildQueryString(payload);
     GETGen("http://localhost:5000/core/generate", query, (data) => {
       if (Array.isArray(data.response)) setResponseListOutput(data.response);
       setaimessage(data.message);
+      setFocus(data.focus);
       setStep(4);
     });
   };
-
+  
   const regenerateActionList = () => {
     const payload = { section: "action", data: null, purpose: `Regenerate actions based on: ${customAction}` };
     const query = buildQueryString(payload);
@@ -139,8 +149,8 @@ function FDARGenAI() {
         name: patientName || "Unknown",
         datetime: `${diagnosisDate || "0000-00-00"}T${diagnosisTime || "00:00"}`,
       },
-      focus: assessedData || "N/A",
-      data: selectedDiagnosis ? [selectedDiagnosis] : (diagnoses || []),
+      focus: mainfocus || "N/A",
+      data: assessedData +". " + selectedDiagnosis ? [selectedDiagnosis] : (diagnoses || []),
       action: selectedAction ? [selectedAction] : (listOfActions || []),
       response: responseListOutput || [],
     };
