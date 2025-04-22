@@ -97,7 +97,9 @@ function FDARGenAI() {
   };
 
   const handleDiagnosisSelection = () => {
-    const payload = { section: "action", data: selectedDiagnosis || customDiagnosis, purpose: null };
+
+
+    const payload = { section: "action", data: [selectedDiagnosis || customDiagnosis], purpose: null };
     const query = buildQueryString(payload);
     GETGen("http://localhost:5000/core/generate", query, (data) => {
       if (Array.isArray(data.action)) setListOfActions(data.action);
@@ -143,6 +145,7 @@ function FDARGenAI() {
   };
 
   const handleContinueToFDARView = () => {
+
     const newEntry = {
       nurse: currentUser,
       patient: {
@@ -150,8 +153,8 @@ function FDARGenAI() {
         datetime: `${diagnosisDate || "0000-00-00"}T${diagnosisTime || "00:00"}`,
       },
       focus: mainfocus || "N/A",
-      data: assessedData +". " + selectedDiagnosis ? [selectedDiagnosis] : (diagnoses || []),
-      action: selectedAction ? [selectedAction] : (listOfActions || []),
+      data:  [ assessedData , [selectedDiagnosis]],
+      action: selectedAction ,
       response: responseListOutput || [],
     };
 

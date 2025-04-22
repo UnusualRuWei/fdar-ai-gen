@@ -48,10 +48,10 @@ const Step5FDARChart = ({ fdarData }) => {
                 {idx === 0 ? focus : ""}
               </td>
               <td className="p-2 border align-top">
-                {data[idx] || ""}
+                { data[idx] || ""}
               </td>
               <td className="p-2 border align-top">
-                {action[idx] || ""}
+                { action[idx] || ""}
               </td>
               <td className="p-2 border align-top">
                 {response[idx] || ""}

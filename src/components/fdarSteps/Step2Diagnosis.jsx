@@ -10,34 +10,42 @@ const Step2Diagnosis = ({
 }) => {
   const isCustomDiagnosisEmpty = customDiagnosis.trim() === "";
 
+  const handleCheckboxChange = (diag) => {
+    if (selectedDiagnosis.includes(diag)) {
+      setSelectedDiagnosis(selectedDiagnosis.filter((d) => d !== diag));
+    } else {
+      setSelectedDiagnosis([...selectedDiagnosis, diag]);
+    }
+  };
+
   return (
     <>
       <h2 className="text-xl font-bold text-gray-800 text-center mb-4">
         Step 2: Select or Input Nursing Diagnosis
       </h2>
-  
+
       {aimessage && (
         <div className="bg-blue-100 text-blue-800 p-4 rounded-lg shadow mb-4 text-center">
           <p className="font-semibold">AI Message:</p>
           <p>{aimessage}</p>
         </div>
       )}
-  
+
       <div className="space-y-3 max-w-xl mx-auto">
         {diagnoses.map((diag, idx) => (
           <div key={idx} className="flex items-center gap-2">
             <input
-              type="radio"
+              type="checkbox"
               id={`diag-${idx}`}
               name="diagnosis"
               value={diag}
-              checked={selectedDiagnosis === diag}
-              onChange={() => setSelectedDiagnosis(diag)}
+              checked={selectedDiagnosis.includes(diag)}
+              onChange={() => handleCheckboxChange(diag)}
             />
             <label htmlFor={`diag-${idx}`}>{diag}</label>
           </div>
         ))}
-  
+
         <div className="mt-4">
           <label className="block text-sm font-medium">Input on what to observation to focus (For Regenerating New Choices)</label>
           <input
@@ -45,10 +53,10 @@ const Step2Diagnosis = ({
             required
             className="w-full border rounded p-2"
             value={customDiagnosis}
-            onChange={(e) => setCustomDiagnosis(e.target.value) }
+            onChange={(e) => setCustomDiagnosis(e.target.value)}
           />
         </div>
-  
+
         <div className="flex gap-4 mt-4">
           <button
             onClick={regenerateDiagnosisList}
@@ -64,7 +72,7 @@ const Step2Diagnosis = ({
           <button
             onClick={handleDiagnosisSelection}
             className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-            disabled={!selectedDiagnosis && !customDiagnosis}
+            disabled={selectedDiagnosis.length === 0 && !customDiagnosis}
           >
             Confirm and Continue
           </button>
