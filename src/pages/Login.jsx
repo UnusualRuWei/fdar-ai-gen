@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import appLogo from '../components/app-Logo.png'
 
 function Login() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
         <div className="flex flex-col items-center mb-6">
-          <img src="./src/components/Logo.png" alt="Logo" className="w-20" />
+          <img src={appLogo} alt="Logo" className="w-20" />
           <h2 className="text-xl font-bold mt-2 text-gray-800">FDARAI™</h2>
           <p className="text-gray-600 text-sm">Assistive AI FDAR Tool for Nursing Students.</p>
         </div>

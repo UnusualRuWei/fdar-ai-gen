@@ -55,21 +55,64 @@ function FDARGenAI() {
   const [responseListOutput, setResponseListOutput] = useState([]);
   const [recentFDARs, setRecentFDARs] = useState([]);
 
+  const [apiUrl, setApiUrl] = useState("")
+
   // Fetch welcome message once
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("savedFDARs")) || [];
     if (Array.isArray(stored)) {
       setRecentFDARs(stored);
     }
+
     const currUser = JSON.parse(localStorage.getItem("user"));
     setUser(currUser.FName + " " + currUser.LName);
-    fetch(`http://localhost:5000/core/newFDAR`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((response) => response.json())
-      .then((data) => setaimessage(data.message))
-      .catch((error) => console.error("Error fetching welcome message:", error));
+
+    const checkConnection = async () => {
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      if (!apiUrl) {
+        console.error("Ai Server is not responding");
+        return;
+      }
+
+      try {
+        // This line 'awaits' (waits for) the fetch promise to resolve
+        const response = await fetch(`${apiUrl}/status`);
+
+        if (!response.ok) {
+          console.error("error");
+          // ... log error ...
+          return;
+        }
+
+        // This line 'awaits' (waits for) the JSON parsing promise to resolve
+        const data = await response.json();
+
+        // Update state based on the data - this triggers a UI update
+        if (data.status === 'success') {
+          fetch(`${apiUrl}/core/newFDAR`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          })
+            .then((response) => response.json())
+            .then((data) => setaimessage(data.message))
+            .catch((error) => console.error("Error fetching welcome message:", error));
+            setApiUrl(apiUrl);
+        } else {
+          console.error("no data");
+        }
+
+      } catch (error) {
+        // Update state based on the error - this triggers a UI update
+        setStatus('error');
+        setMessage(`Failed to connect to server: ${error.message}`);
+        // ... log error ...
+      }
+    };
+
+    // Call the async function defined above
+    checkConnection();
+    
   }, []);
 
   const handleDeleteFDAR = (index) => {
@@ -88,7 +131,7 @@ function FDARGenAI() {
       purpose: `The patient's name is ${patientName}. Time: ${diagnosisDate} ${diagnosisTime}. ${assessedData}`,
     };
     const query = buildQueryString(payload);
-    GETGen("http://localhost:5000/core/generate", query, (data) => {
+    GETGen(`${apiUrl}/core/generate`, query, (data) => {
       if (Array.isArray(data.data)) setDiagnoses(data.data);
       setaimessage(data.message);
       setStep(2);
@@ -99,7 +142,7 @@ function FDARGenAI() {
   const handleDiagnosisSelection = () => {
     const payload = { section: "action", data: selectedDiagnosis || customDiagnosis, purpose: null };
     const query = buildQueryString(payload);
-    GETGen("http://localhost:5000/core/generate", query, (data) => {
+    GETGen(`${apiUrl}/core/generate`, query, (data) => {
       if (Array.isArray(data.action)) setListOfActions(data.action);
       setaimessage(data.message);
       setStep(3);
@@ -109,7 +152,7 @@ function FDARGenAI() {
   const regenerateDiagnosisList = () => {
     const payload = { section: "data", data: null, purpose: `Regenerate based on: ${customDiagnosis}` };
     const query = buildQueryString(payload);
-    GETGen("http://localhost:5000/core/generate", query, (data) => {
+    GETGen(`${apiUrl}/core/generate`, query, (data) => {
       if (Array.isArray(data.data)) setDiagnoses(data.data);
       setaimessage(data.message);
     });
@@ -125,7 +168,7 @@ function FDARGenAI() {
     console.log(payload);
   
     const query = buildQueryString(payload);
-    GETGen("http://localhost:5000/core/generate", query, (data) => {
+    GETGen(`${apiUrl}/core/generate`, query, (data) => {
       if (Array.isArray(data.response)) setResponseListOutput(data.response);
       setaimessage(data.message);
       setFocus(data.focus);
@@ -136,7 +179,7 @@ function FDARGenAI() {
   const regenerateActionList = () => {
     const payload = { section: "action", data: null, purpose: `Regenerate actions based on: ${customAction}` };
     const query = buildQueryString(payload);
-    GETGen("http://localhost:5000/core/generate", query, (data) => {
+    GETGen(`${apiUrl}/core/generate`, query, (data) => {
       if (Array.isArray(data.action)) setListOfActions(data.action);
       setaimessage(data.message);
     });
