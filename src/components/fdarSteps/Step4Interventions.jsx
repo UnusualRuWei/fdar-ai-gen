@@ -1,4 +1,4 @@
-const Step3Interventions = ({
+const Step4Interventions = ({
   aimessage,
   listOfActions,
   selectedAction,
@@ -83,4 +83,4 @@ const Step3Interventions = ({
   );
 };
 
-export default Step3Interventions;
+export default Step4Interventions;

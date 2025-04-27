@@ -1,4 +1,4 @@
-const Step2Diagnosis = ({
+const Step3Diagnosis = ({
   aimessage,
   diagnoses,
   selectedDiagnosis,
@@ -74,4 +74,4 @@ const Step2Diagnosis = ({
   );
 };
 
-export default Step2Diagnosis;
+export default Step3Diagnosis;

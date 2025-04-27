@@ -1,4 +1,4 @@
-const Step5FDARChart = ({ fdarData }) => {
+const Step5FDARChart = ({ fdarData , existingFDAR, handleGenerateWithSameData}) => {
   const { nurse, patient, focus, data = [], action = [], response = [] } = fdarData;
 
   const rowCount = Math.max(data.length, action.length, response.length, 1);
@@ -61,20 +61,35 @@ const Step5FDARChart = ({ fdarData }) => {
         </tbody>
       </table>
 
+
       <div className="text-center space-x-4">
-        <button
-          onClick={handleSaveFDAR}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Save FDAR
-        </button>
+
+        {existingFDAR === true ? (
+          <button
+            onClick={handleGenerateWithSameData}
+            className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+          >
+            Regenerate FDAR with New Data
+          </button>
+        ) : (
+          <button
+            onClick={handleSaveFDAR}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Save FDAR
+          </button>
+        )}
+
         <button
           onClick={() => window.location.reload()}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          Generate New
+          Generate New FDAR
         </button>
       </div>
+
+
+
     </div>
   );
 };
