@@ -2,7 +2,7 @@
 
 const Step4ActionResponse = ({
     responseListOutput,
-    handleContinueToFDARView
+    onNext
 }) => {
     return (
         <>
@@ -22,7 +22,7 @@ const Step4ActionResponse = ({
                 </div>
                 <div className="text-center">
                     <button
-                        onClick={handleContinueToFDARView}
+                        onClick={onNext}
                         className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
                     >
                         Continue to FDAR Chart

@@ -1,14 +1,16 @@
+import { useState } from "react";
+
 const Step4Interventions = ({
   aimessage,
   listOfActions,
   selectedAction,
   setSelectedAction,
-  customAction,
-  setCustomAction,
   regenerateActionList,
-  handleActionConfirm
+  onNext,
 }) => {
-  const isCustomActionEmpty = !customAction || customAction.trim() === "";
+
+  const [customAction, setCustomAction] = useState("");
+  const isCustomActionEmpty = customAction.trim() === "";
 
   const handleCheckboxChange = (action) => {
     if (selectedAction.includes(action)) {
@@ -21,7 +23,7 @@ const Step4Interventions = ({
   return (
     <>
       <h2 className="text-xl font-bold text-gray-800 text-center mb-4">
-        Step 3: Select or Input Nursing Intervention
+        Step 4: Select or Input Nursing Intervention
       </h2>
 
       {aimessage && (
@@ -32,23 +34,29 @@ const Step4Interventions = ({
       )}
 
       <div className="space-y-3 max-w-xl mx-auto">
-        {listOfActions.map((action, idx) => (
-          <div key={idx} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id={`action-${idx}`}
-              name="action"
-              value={action}
-              checked={selectedAction.includes(action)}
-              onChange={() => handleCheckboxChange(action)}
-            />
-            <label htmlFor={`action-${idx}`}>{action}</label>
-          </div>
-        ))}
+        {/* List of Nursing Interventions */}
+        {listOfActions.length > 0 ? (
+          listOfActions.map((action, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id={`action-${idx}`}
+                name="action"
+                value={action}
+                checked={selectedAction.includes(action)}
+                onChange={() => handleCheckboxChange(action)}
+              />
+              <label htmlFor={`action-${idx}`}>{action}</label>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No available intervention options yet.</p>
+        )}
 
+        {/* Input field for custom action */}
         <div className="mt-4">
           <label className="block text-sm font-medium">
-            Input specific observations to focus on (for regenerating suggestions)
+            Input Custom Intervention for Regenerating Choices
           </label>
           <input
             type="text"
@@ -61,19 +69,18 @@ const Step4Interventions = ({
 
         <div className="flex gap-4 mt-4">
           <button
-            onClick={regenerateActionList}
+            onClick={() => regenerateActionList("action", customAction, 5)}
             className={`px-4 py-2 rounded text-white ${isCustomActionEmpty
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-yellow-500 hover:bg-yellow-600"
-              }`}
+            }`}
             disabled={isCustomActionEmpty}
           >
-            Regenerate List
+            Regenerate Intervention List
           </button>
           <button
-            onClick={handleActionConfirm}
+            onClick={onNext}
             className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-            disabled={selectedAction.length === 0 && !customAction}
           >
             Confirm and Continue
           </button>

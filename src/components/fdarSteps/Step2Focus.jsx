@@ -1,13 +1,16 @@
+import { useState } from "react";
+
 const Step2Focus = ({
     aimessage,
     focuses,
     selectedFocus,
     setSelectedFocus,
-    customFocus,
-    setCustomFocus,
-    regenerateList, 
-    handleFocusSelection
+    regenerateList,
+    onNext,
 }) => {
+
+    const [customFocus, setCustomFocus] = useState("");
+
     const isCustomFocusEmpty = customFocus.trim() === "";
 
     return (
@@ -57,23 +60,23 @@ const Step2Focus = ({
 
                 <div className="flex gap-4 mt-4">
                     <button
-                        onClick={() => regenerateList("focus", customFocus, 5)} // Use the generalized regenerate function
-                        className={`px-4 py-2 rounded text-white ${
-                            isCustomFocusEmpty
+                        onClick={() => regenerateList("focus", customFocus, 5)}
+                        className={`px-4 py-2 rounded text-white ${isCustomFocusEmpty
                                 ? "bg-gray-400 cursor-not-allowed"
                                 : "bg-yellow-500 hover:bg-yellow-600"
-                        }`}
+                            }`}
                         disabled={isCustomFocusEmpty}
                     >
                         Regenerate Focus List
                     </button>
                     <button
-                        onClick={handleFocusSelection}
+                        onClick={onNext}
                         className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-                        disabled={!selectedFocus && !customFocus}
+                    //disabled={!selectedFocus && !customFocus}
                     >
                         Confirm and Continue
                     </button>
+                    
                 </div>
             </div>
         </>
