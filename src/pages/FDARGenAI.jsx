@@ -166,38 +166,59 @@ function FDARGenAI() {
 
   // Generate Focus List and Set Patient
   const handleStep1to2 = () => {
+    // Prepare the patient payload dynamically
     const patientpayload = {
       name: patientName,
       dateTime: `${diagnosisDate} ${diagnosisTime}`,
       diagnosis: assessedData,
     };
 
+    // Query string with the payload
     const query = new URLSearchParams({
       payload: JSON.stringify(patientpayload),
     }).toString();
 
-    // // First call: Create patient
-    // GETGen(`${apiUrl}/core/new?${query.payload}`, (data) => {
-    //   if (data.Status === "ok") {
-    //     const newPatientID = data.ID;
-    //     setPatientID(newPatientID);
+    // If the patient is new or no patientID exists
+    if (!patientID) {
+      // First API call: Create a new patient
+      GETGen(`${apiUrl}/core/new?${query}`, (data) => {
+        if (data.Status === "ok") {
+          const newPatientID = data.ID;
+          setPatientID(newPatientID);
 
-    //     // Second call: Get initial focus list (NO payload)
-    //     GETGen(`${apiUrl}/core/generate/${newPatientID}`, (focusData) => {
-    //       if (focusData.status === "okay") {
-    //         setFocus(focusData.generatedSelections.items);
-    //         setaimessage(focusData.AImessage);
-    //         setStep(2);
-    //       } else {
-    //         console.error("Failed to get initial focus list:", focusData);
-    //       }
-    //     });
-    //   } else {
-    //     console.error("Failed to create patient:", data);
-    //   }
-    // });
+          // Second call: Get the initial focus list for the new patient (NO payload)
+          GETGen(`${apiUrl}/core/generate/${newPatientID}`, (focusData) => {
+            if (focusData.status === "okay") {
+              setFocus(focusData.generatedSelections.items);
+              setaimessage(focusData.AImessage);
+              setStep(2); // Move to the next step
+            } else {
+              console.error("Failed to get initial focus list:", focusData);
+            }
+          });
+        } else {
+          console.error("Failed to create patient:", data);
+        }
+      });
+    } else {
+      // If patientID exists (existing patient), fetch focus list using the existing patientID
+      GETGen(`${apiUrl}/core/generate/${patientID}`, (focusData) => {
+        if (focusData.status === "okay") {
+          setFocus(focusData.generatedSelections.items);
+          setaimessage(focusData.AImessage);
+          setStep(2); // Move to the next step
+        } else {
+          console.error("Failed to get initial focus list:", focusData);
+        }
+      });
+    }
+    
     setStep(2);
   };
+
+
+  //Handle Regenerate data with same patient
+
 
   // Generate Diagnoses and Set Focus
   const handleStep2to3 = () => {
@@ -215,7 +236,7 @@ function FDARGenAI() {
       payload: JSON.stringify(setfocuspayload),
     }).toString();
 
-    // GETGen(`${apiUrl}/core/generate/${newPatientID}?${query.payload}`, (DiagData) => {
+    // GETGen(`${apiUrl}/core/generate/${patientID}?${query.payload}`, (DiagData) => {
     //   if (DiagData.status === "okay") {
     //     setListOfDiagnosis(DiagData.generatedSelections.items);
     //     setaimessage(DiagData.AImessage);
@@ -244,7 +265,7 @@ function FDARGenAI() {
       payload: JSON.stringify(setdiagpayload),
     }).toString();
 
-    // GETGen(`${apiUrl}/core/generate/${newPatientID}?${query.payload}`, (DiagData) => {
+    // GETGen(`${apiUrl}/core/generate/${patientID}?${query.payload}`, (DiagData) => {
     //   if (DiagData.status === "okay") {
     //     setListOfActions(DiagData.generatedSelections.items);
     //     setaimessage(DiagData.AImessage);
@@ -277,7 +298,7 @@ function FDARGenAI() {
     //   payload: JSON.stringify(setactionpayload),
     // }).toString();
 
-    // GETGen(`${apiUrl}/core/generate/${newPatientID}?${query.payload}`, (ResData) => {
+    // GETGen(`${apiUrl}/core/generate/${patientID}?${query.payload}`, (ResData) => {
     //   if (ResData.status === "okay") {
     //     setResponseListOutput(ResData.generatedSelections.items);
     //     setaimessage(ResData.AImessage);
@@ -313,7 +334,7 @@ function FDARGenAI() {
   //For Save FDAR Button
   const finalizeAndSave = () => {
 
-    GETGen(`${apiUrl}/core/final/${newPatientID}`, (finalData) => {
+    GETGen(`${apiUrl}/core/final/${patientID}`, (finalData) => {
       if (finalData.Status === "ok") {
         console.log("FDAR finalized successfully:", finalData);
       } else {
@@ -323,18 +344,20 @@ function FDARGenAI() {
 
   }
 
+  const handleSamePatientData = () => {
+    finalizeAndSave
+    setStep(1);
+
+  }
+
   //Handle Regenerate data with new patient
-  const handleNewPatientData = {
+  const handleNewPatientData = () => {
 
 
   }
-  //Handle Regenerate data with same patient
-  const handleSamePatientData = {
 
-
-  }
   //Fetch All Record
-  const fetchAllRecords = {
+  const fetchAllRecords = () => {
 
   }
   //

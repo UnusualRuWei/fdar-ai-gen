@@ -1,4 +1,4 @@
-const Step5FDARChart = ({ fdarData, existingFDAR, handleGenerateWithSameData }) => {
+const Step6FDARChart = ({ fdarData, existingFDAR, handleGenerateWithSameData }) => {
   const { nurse, patient, fdar = [] } = fdarData || {};
 
   const isFDARGenerated = fdar.length > 0;
@@ -19,29 +19,29 @@ const Step5FDARChart = ({ fdarData, existingFDAR, handleGenerateWithSameData }) 
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-8 max-w-5xl mx-auto p-8">
       {!isFDARGenerated ? (
-        <div className="text-center text-gray-500 text-lg py-20">
+        <div className="text-center text-gray-600 text-xl py-28">
           No FDAR generated yet. Please go back and complete the steps.
         </div>
       ) : (
         <>
           {/* Header Info */}
-          <h2 className="text-xl font-bold text-gray-800 text-center mb-4">Step 5: FDAR Chart</h2>
+          <h2 className="text-3xl font-semibold text-gray-900 text-center mb-6">Step 6: FDAR Chart</h2>
 
-          <div className="bg-gray-100 p-4 rounded-lg shadow">
-            <p className="font-semibold">Nurse: {nurse}</p>
-            <p className="font-semibold">Patient: {patient?.name}</p>
-            <p className="font-semibold">Date & Time: {new Date(patient?.datetime).toLocaleString()}</p>
+          <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
+            <p className="text-lg font-semibold">Nurse: {nurse}</p>
+            <p className="text-lg font-semibold">Patient: {patient?.name}</p>
+            <p className="text-lg font-semibold">Date & Time: {new Date(patient?.datetime).toLocaleString()}</p>
           </div>
 
-          <table className="w-full border-collapse border">
+          <table className="w-full border-collapse border mt-6">
             <thead>
               <tr className="bg-gray-200">
-                <th className="p-2 border">Focus</th>
-                <th className="p-2 border">Data</th>
-                <th className="p-2 border">Action</th>
-                <th className="p-2 border">Response</th>
+                <th className="p-4 border text-lg">Focus</th>
+                <th className="p-4 border text-lg">Data</th>
+                <th className="p-4 border text-lg">Action</th>
+                <th className="p-4 border text-lg">Response</th>
               </tr>
             </thead>
             <tbody>
@@ -51,32 +51,32 @@ const Step5FDARChart = ({ fdarData, existingFDAR, handleGenerateWithSameData }) 
 
                 return Array.from({ length: rowCount }).map((_, subIdx) => (
                   <tr key={`${idx}-${subIdx}`} className={subIdx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="p-2 border align-top">{focus[subIdx] || (subIdx === 0 ? "N/A" : "")}</td>
-                    <td className="p-2 border align-top">{data[subIdx] || ""}</td>
-                    <td className="p-2 border align-top">{action[subIdx] || ""}</td>
-                    <td className="p-2 border align-top">{response[subIdx] || ""}</td>
+                    <td className="p-4 border text-lg align-top">{focus[subIdx] || (subIdx === 0 ? "N/A" : "")}</td>
+                    <td className="p-4 border text-lg align-top">{data[subIdx] || ""}</td>
+                    <td className="p-4 border text-lg align-top">{action[subIdx] || ""}</td>
+                    <td className="p-4 border text-lg align-top">{response[subIdx] || ""}</td>
                   </tr>
                 ));
               })}
             </tbody>
           </table>
 
-          <div className="text-center space-x-4 mt-6">
+          <div className="text-center space-x-6 mt-8">
             <button
               onClick={handleGenerateWithSameData}
-              className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+              className="bg-yellow-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-yellow-700"
             >
               Generate New FDAR (Same Patient)
             </button>
             <button
               onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700"
             >
               Generate New FDAR (New Patient)
             </button>
             <button
               onClick={handleSaveFDAR}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-green-700"
             >
               Save FDAR
             </button>
@@ -87,4 +87,4 @@ const Step5FDARChart = ({ fdarData, existingFDAR, handleGenerateWithSameData }) 
   );
 };
 
-export default Step5FDARChart;
+export default Step6FDARChart;
