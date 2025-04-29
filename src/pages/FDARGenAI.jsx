@@ -396,8 +396,7 @@ function FDARGenAI() {
   }
 
   const handleNewPatientData = () => {
-
-    
+    setStep(1)
   }
 
   const finalizeAndSave = () => {
