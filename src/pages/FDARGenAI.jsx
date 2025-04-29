@@ -212,7 +212,7 @@ function FDARGenAI() {
         }
       });
     }
-    
+
     setStep(2);
   };
 
@@ -347,20 +347,49 @@ function FDARGenAI() {
   const handleSamePatientData = () => {
     finalizeAndSave
     setStep(1);
-
   }
 
   //Handle Regenerate data with new patient
   const handleNewPatientData = () => {
-
-
+    setPatientID("");
+    setStep(1);
   }
 
-  //Fetch All Record
-  const fetchAllRecords = () => {
+  const [patientHistory, setPatientHistory] = useState([]);
+  const [patientRecords, setPatientRecords] = useState({ name: '', dateTime: '', fdar: [] });
 
-  }
-  //
+  // Fetch All Patient List (names and IDs)
+  const fetchAllPatientRecords = () => {
+    GETGen(`${apiUrl}/data/retrieve`, (response) => {
+      if (response && response.patients) {
+        setPatientHistory(response.patients);
+        console.log("Fetched patient list successfully:", response.patients);
+      } else {
+        console.error("Failed to fetch patient list:", response);
+      }
+    });
+  };
+
+  // Fetch All FDAR Records for a Specific Patient
+  const fetchAllPatientFDARRecords = (patientID) => {
+    GETGen(`${apiUrl}/data/retrieve/${patientID}`, (finalData) => {
+      if (finalData.Status === "ok") {
+        const formattedPatientData = {
+          nurse: currentUser, // or you can add a real nurse name if you have
+          patient: {
+            name: finalData.name || "Unnamed Patient",
+            datetime: finalData.dateTime || new Date().toISOString(),
+          },
+          fdar: finalData.fdar || [],
+        };
+        setPatientRecords(formattedPatientData);  // Set it in correct format
+      } else {
+        console.error("Failed to retrieve patient FDAR:", finalData);
+      }
+    });
+  };
+  
+
 
   return (
     <div className="flex h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500">
@@ -368,40 +397,30 @@ function FDARGenAI() {
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome, {currentUser}</h2>
 
         <nav className="space-y-4">
-          <p className="block text-purple-600 font-semibold">Recently Generated Results</p>
+          <p className="block text-purple-600 font-semibold">Patient List</p>
 
-          {recentFDARs.length > 0 ? (
-            recentFDARs.map((entry, index) => (
+          {patientHistory.length > 0 ? (
+            patientHistory.map((patient, index) => (
               <div key={index} className="flex justify-between items-center">
                 <button
                   onClick={() => {
-                    setFdarData(entry);
-                    setStep(5);
+                    fetchAllPatientRecords();
                   }}
                   className="text-sm text-left text-gray-700 hover:text-purple-700 font-medium"
                 >
-                  {entry?.patient?.name || "Unnamed"} ({new Date(entry?.patient?.datetime || "").toLocaleDateString("en-US")})
-                </button>
-                <button
-                  onClick={() => {
-                    const updated = recentFDARs.filter((_, i) => i !== index);
-                    setRecentFDARs(updated);
-                    localStorage.setItem("savedFDARs", JSON.stringify(updated));
-                  }}
-                  className="text-red-500 font-bold ml-2"
-                >
-                  ×
+                  {patient.name || "Unnamed Patient"}
                 </button>
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500 italic">No entries yet.</p>
+            <p className="text-sm text-gray-500 italic">No patients found.</p>
           )}
 
           <Link to="/" className="block text-red-500 font-semibold hover:text-red-700 mt-4">
             Logout
           </Link>
         </nav>
+
 
       </div>
       <div className="w-3/4 flex flex-col p-4">
@@ -458,10 +477,9 @@ function FDARGenAI() {
           )}
           {step === 6 && (
             <Step6FDARChart
-              fdarData={fdarData}  // Ensure this is the complete fdarData object
-              existingFDAR={fdarData?.fdar && fdarData.fdar.length > 0}  // Check if there is any existing FDAR
-              onSamePatient={fdarData?.patient?.name || "Unknown Patient"}  // Assuming patient has a name or fallback to "Unknown"
-              onNewPatient={setStep}  // Set the next step for new patient
+              fdarData={patientRecords}  // Ensure this is the complete fdarData object
+              onSamePatient={handleSamePatientData} 
+              onNewPatient={handleNewPatientData}  // Set the next step for new patient
               onSaveFDAR={finalizeAndSave}  // Finalize and save logic
             />
           )}
