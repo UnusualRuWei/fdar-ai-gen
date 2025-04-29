@@ -5,7 +5,6 @@ const Step2Focus = ({
   focuses,
   selectedFocus,
   setSelectedFocus,
-  regenerateList,
   onNext,
 }) => {
   const [customFocus, setCustomFocus] = useState("");
@@ -49,7 +48,7 @@ const Step2Focus = ({
         )}
 
         {/* Input field for custom focus */}
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <label className="block text-lg font-medium text-gray-700">Input Custom Focus for Regenerating Choices</label>
           <input
             type="text"
@@ -59,11 +58,11 @@ const Step2Focus = ({
             onChange={(e) => setCustomFocus(e.target.value)}
             placeholder="Enter custom focus here"
           />
-        </div>
+        </div> */}
 
         {/* Buttons */}
         <div className="flex gap-8 mt-8 justify-center">
-          <button
+          {/* <button
             onClick={() => regenerateList("focus", customFocus, 5)}
             className={`px-8 py-4 rounded-lg text-white ${isCustomFocusEmpty
               ? "bg-gray-500 cursor-not-allowed"
@@ -72,7 +71,7 @@ const Step2Focus = ({
             disabled={isCustomFocusEmpty}
           >
             Regenerate Focus List
-          </button>
+          </button> */}
           <button
             onClick={onNext}
             className="bg-purple-700 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-purple-800 focus:outline-none focus:ring-3 focus:ring-purple-600"

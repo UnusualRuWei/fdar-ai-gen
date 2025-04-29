@@ -19,8 +19,8 @@ function FDARGenAI() {
     }).toString();
   }
 
-  function GETGen(url, query, onSuccess) {
-    fetch(`${url}?${query}`, {
+  function GETGen(url, onSuccess) {
+    fetch(`${url}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     })
@@ -51,7 +51,7 @@ function FDARGenAI() {
   const [assessedData, setAssessedData] = useState("");
   //Related to Step 2
   const [focuses, setFocus] = useState([]);
-  const [selectedFocus, setSelectedFocus] = useState("");
+  const [selectedFocus, setSelectedFocus] = useState([]);
   //Related to Step 3
   const [diagnoses, setDiagnoses] = useState([]);
   const [selectedDiagnosis, setSelectedDiagnosis] = useState("");
@@ -71,7 +71,7 @@ function FDARGenAI() {
     const currUser = JSON.parse(localStorage.getItem("user"));
     setUser(currUser.FName + " " + currUser.LName);
 
-    //Procedure 1 on filling FDAR is to check connection
+
     const checkConnection = async () => {
       const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -82,26 +82,12 @@ function FDARGenAI() {
 
       try {
         // This line 'awaits' (waits for) the fetch promise to resolve
-        const response = await fetch(`${apiUrl}/status`);
+        const response = await fetch(`${apiUrl}/stats`);
 
-        if (!response.ok) {
-          console.error("error");
-          // ... log error ...
-          return;
-        }
-
-        // This line 'awaits' (waits for) the JSON parsing promise to resolve
         const data = await response.json();
 
-        // Update state based on the data - this triggers a UI update
-        if (data.status === 'success') {
-          fetch(`${apiUrl}/core/newFDAR`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          })
-            .then((response) => response.json())
-            .then((data) => setaimessage(data.message))
-            .catch((error) => console.error("Error fetching welcome message:", error));
+        if (data.status === 'okay') {
+          setaimessage(data.message)
           setApiUrl(apiUrl);
         } else {
           console.error("no data");
@@ -117,7 +103,7 @@ function FDARGenAI() {
     //End of Procedure 1
     // Call the async function defined above
     checkConnection();
-
+    fetchAllPatientRecords();
   }, []);
 
   const handleDeleteFDAR = (index) => {
@@ -149,11 +135,11 @@ function FDARGenAI() {
       if (data.status === "okay") {
         // Update the corresponding state based on the section
         if (section === "focus") {
-          setFocus(data.generatedSelections.items);
+          setFocus(data.generatedselections.items);
         } else if (section === "diagnosis") {
-          setDiagnoses(data.generatedSelections.items);
+          setDiagnoses(data.generatedselections.items);
         } else if (section === "action") {
-          setListOfActions(data.generatedSelections.items);
+          setListOfActions(data.generatedselections.items);
         }
         setaimessage(data.AImessage); // Set AI message
       } else {
@@ -162,15 +148,25 @@ function FDARGenAI() {
     });
   };
 
-  const handleStep0to1 = () => setStep(1);
+  const handleStep0to1 = () => { setStep(1); fetchAllPatientRecords(); };
 
   // Generate Focus List and Set Patient
   const handleStep1to2 = () => {
     // Prepare the patient payload dynamically
     const patientpayload = {
       name: patientName,
-      dateTime: `${diagnosisDate} ${diagnosisTime}`,
-      diagnosis: assessedData,
+      datetime: `${diagnosisDate} ${diagnosisTime}`,
+      diagnosis: assessedData
+    };
+
+    const payload = {
+      intent: "generate",
+      selection: {
+        section: "focus",
+        items: []
+      },
+      prompt: "",
+      amount: 5
     };
 
     // Query string with the payload
@@ -178,19 +174,23 @@ function FDARGenAI() {
       payload: JSON.stringify(patientpayload),
     }).toString();
 
+    const query1 = new URLSearchParams({
+      payload: JSON.stringify(payload),
+    }).toString();
+
+
     // If the patient is new or no patientID exists
     if (!patientID) {
       // First API call: Create a new patient
       GETGen(`${apiUrl}/core/new?${query}`, (data) => {
-        if (data.Status === "ok") {
-          const newPatientID = data.ID;
-          setPatientID(newPatientID);
-
-          // Second call: Get the initial focus list for the new patient (NO payload)
-          GETGen(`${apiUrl}/core/generate/${newPatientID}`, (focusData) => {
+        if (data.status === "okay") {
+          setPatientID(data.id);
+          console.log("data output: " + data.id);
+          console.log("patientID output: " + patientID);
+          GETGen(`${apiUrl}/core/generate/${data.id}?${query1}`, (focusData) => {
             if (focusData.status === "okay") {
-              setFocus(focusData.generatedSelections.items);
-              setaimessage(focusData.AImessage);
+              setFocus(focusData.generatedselections.items);
+              setaimessage(focusData.aimessage);
               setStep(2); // Move to the next step
             } else {
               console.error("Failed to get initial focus list:", focusData);
@@ -204,16 +204,14 @@ function FDARGenAI() {
       // If patientID exists (existing patient), fetch focus list using the existing patientID
       GETGen(`${apiUrl}/core/generate/${patientID}`, (focusData) => {
         if (focusData.status === "okay") {
-          setFocus(focusData.generatedSelections.items);
-          setaimessage(focusData.AImessage);
+          setFocus(focusData.generatedselections.items);
+          setaimessage(focusData.aimessage);
           setStep(2); // Move to the next step
         } else {
           console.error("Failed to get initial focus list:", focusData);
         }
       });
     }
-
-    setStep(2);
   };
 
 
@@ -222,13 +220,24 @@ function FDARGenAI() {
 
   // Generate Diagnoses and Set Focus
   const handleStep2to3 = () => {
+
     const setfocuspayload = {
       intent: "set",
       selection: {
         section: "focus",
         items: selectedFocus,
       },
-      prompt: null,
+      prompt: "",
+      amount: 5,
+    };
+
+    const payload = {
+      intent: "generate",
+      selection: {
+        section: "data",
+        items: [],
+      },
+      prompt: "",
       amount: 5,
     };
 
@@ -236,17 +245,27 @@ function FDARGenAI() {
       payload: JSON.stringify(setfocuspayload),
     }).toString();
 
-    // GETGen(`${apiUrl}/core/generate/${patientID}?${query.payload}`, (DiagData) => {
-    //   if (DiagData.status === "okay") {
-    //     setListOfDiagnosis(DiagData.generatedSelections.items);
-    //     setaimessage(DiagData.AImessage);
-    //     setStep(3);
-    //   } else {
-    //     console.error("Failed to get diagnosis list:", DiagData);
-    //   }
-    // });
+    const query1 = new URLSearchParams({
+      payload: JSON.stringify(payload),
+    }).toString();
 
-    setStep(3);
+    GETGen(`${apiUrl}/core/generate/${patientID}?${query}`, (DiagData) => {
+      if (DiagData.status === "okay") {
+        GETGen(`${apiUrl}/core/generate/${patientID}?${query1}`, (DiagData) => {
+          if (DiagData.status === "okay") {
+            setDiagnoses(DiagData.generatedselections.items);
+            setaimessage(DiagData.aimessage);
+            setStep(3);
+          } else {
+            console.error("Failed to get diagnosis list:", DiagData);
+          }
+        });
+      } else {
+        console.error("Failed to get diagnosis list:", DiagData);
+      }
+    });
+
+
   };
 
   // Generate Actions and Set Diagnosis
@@ -257,7 +276,17 @@ function FDARGenAI() {
         section: "data",
         items: diagnoses,
       },
-      prompt: null,
+      prompt: "",
+      amount: 10,
+    };
+
+    const payload = {
+      intent: "generate",
+      selection: {
+        section: "data",
+        items: [],
+      },
+      prompt: "",
       amount: 10,
     };
 
@@ -265,130 +294,180 @@ function FDARGenAI() {
       payload: JSON.stringify(setdiagpayload),
     }).toString();
 
-    // GETGen(`${apiUrl}/core/generate/${patientID}?${query.payload}`, (DiagData) => {
-    //   if (DiagData.status === "okay") {
-    //     setListOfActions(DiagData.generatedSelections.items);
-    //     setaimessage(DiagData.AImessage);
-    //     setStep(4);
-    //   } else {
-    //     console.error("Failed to get actions list:", DiagData);
-    //   }
-    // });
-    setStep(4);
+    const query1 = new URLSearchParams({
+      payload: JSON.stringify(payload),
+    }).toString();
+
+    GETGen(`${apiUrl}/core/generate/${patientID}?${query}`, (DiagData) => {
+      if (DiagData.status === "okay") {
+        GETGen(`${apiUrl}/core/generate/${patientID}?${query1}`, (DiagData) => {
+          if (DiagData.status === "okay") {
+            setListOfActions(DiagData.generatedselections.items);
+            setaimessage(DiagData.aimessage);
+            setStep(4);
+          } else {
+            console.error("Failed to get actions list:", DiagData);
+          }
+        });
+      } else {
+        console.error("Failed to get actions list:", DiagData);
+      }
+    });
   };
 
   // Generate Responses, Output FDAR and Set Actions
   const handleStep4to5 = () => {
-    // const combinedActions = [...selectedAction];
-    // if (customAction.trim()) {
-    //   combinedActions.push(customAction.trim());
-    // }
+    const combinedActions = [...selectedAction];
 
-    // const setactionpayload = {
-    //   intent: "set",
-    //   selection: {
-    //     section: "action",
-    //     items: combinedActions,
-    //   },
-    //   prompt: null,
-    //   amount: 5,
-    // };
+    const setactionpayload = {
+      intent: "set",
+      selection: {
+        section: "action",
+        items: combinedActions,
+      },
+      prompt: "",
+      amount: 5,
+    };
 
-    // const query = new URLSearchParams({
-    //   payload: JSON.stringify(setactionpayload),
-    // }).toString();
+    const payload = {
+      intent: "generate",
+      selection: {
+        section: "action",
+        items: [],
+      },
+      prompt: "",
+      amount: 5,
+    };
 
-    // GETGen(`${apiUrl}/core/generate/${patientID}?${query.payload}`, (ResData) => {
-    //   if (ResData.status === "okay") {
-    //     setResponseListOutput(ResData.generatedSelections.items);
-    //     setaimessage(ResData.AImessage);
-    //     setStep(5);
-    //   } else {
-    //     console.error("Failed to get action list:", DiagData);
-    //   }
-    // });
-    setStep(5);
+    const query = new URLSearchParams({
+      payload: JSON.stringify(setactionpayload),
+    }).toString();
+
+    const query1 = new URLSearchParams({
+      payload: JSON.stringify(setactionpayload),
+    }).toString();
+
+
+    GETGen(`${apiUrl}/core/generate/${patientID}?${query}`, (ResData) => {
+      if (ResData.status === "okay") {
+        GETGen(`${apiUrl}/core/generate/${patientID}?${query1}`, (ResData) => {
+          if (ResData.status === "okay") {
+            setResponseListOutput(ResData.generatedselections.items);
+            setaimessage(ResData.aimessage);
+            finalizeAndSave();
+            setStep(5);
+          } else {
+            console.error("Failed to get action list:", DiagData);
+          }
+        });
+      } else {
+        console.error("Failed to get action list:", DiagData);
+      }
+    });
   };
 
   // Output FDAR with complete details
   const handleStep5to6 = () => {
 
-    const newEntry = {
-      nurse: currentUser,
-      patient: {
-        name: patientName || "Unknown",
-        datetime: `${diagnosisDate || "0000-00-00"}T${diagnosisTime || "00:00"}`,
+
+    const setrespayload = {
+      intent: "set",
+      selection: {
+        section: "response",
+        items: responseListOutput,
       },
-      focus: selectedFocus || "null",
-      data: selectedDiagnosis || "null",
-      action: selectedAction || [],
-      response: responseListOutput || [],
+      prompt: "",
+      amount: 5
     };
 
-    // Set FDAR data to state
-    setFdarData(newEntry);
+    const query = new URLSearchParams({
+      payload: JSON.stringify(setrespayload),
+    }).toString();
 
-    // Move to Step 5 directly
-    setStep(6);
-  };
-  //For Save FDAR Button
+    GETGen(`${apiUrl}/core/generate/${patientID}?${query}`, (ResData) => {
+
+      fetchAllPatientFDARRecords(patientID);
+
+      console.log(fdarData);
+      // Move to Step 5 directly
+      setStep(6);
+
+    });
+  }
+
+  const handleNewPatientData = () => {
+
+    
+  }
+
   const finalizeAndSave = () => {
 
     GETGen(`${apiUrl}/core/final/${patientID}`, (finalData) => {
-      if (finalData.Status === "ok") {
+      if (finalData.status === "okay") {
         console.log("FDAR finalized successfully:", finalData);
       } else {
         console.error("Failed to finalize FDAR:", finalData);
       }
     });
 
-  }
 
+  }
+  //For Save FDAR Button
+  //Error here part
   const handleSamePatientData = () => {
-    finalizeAndSave
     setStep(1);
   }
+  //Error here part
+  const handleNewPatientDataSameName = () => {
+    // Preserve the current name and patientID
+    const name = patientRecords?.patient?.name || "";
+    const id = patientID;
 
-  //Handle Regenerate data with new patient
-  const handleNewPatientData = () => {
-    setPatientID("");
+    // Clear other FDAR-related data
+    setFinalData({
+      name: name,
+      dateTime: "", // new datetime
+      fdar: [],     // clear chart entries
+    });
+
+    setPatientID(id); // optional, keep or clear based on how your backend maps data
     setStep(1);
-  }
+  };
 
+
+  //Error here part
   const [patientHistory, setPatientHistory] = useState([]);
-  const [patientRecords, setPatientRecords] = useState({ name: '', dateTime: '', fdar: [] });
+  const [patientRecords, setPatientRecords] = useState({});
+  //Error here part
 
   // Fetch All Patient List (names and IDs)
   const fetchAllPatientRecords = () => {
     GETGen(`${apiUrl}/data/retrieve`, (response) => {
-      if (response && response.patients) {
-        setPatientHistory(response.patients);
-        console.log("Fetched patient list successfully:", response.patients);
-      } else {
-        console.error("Failed to fetch patient list:", response);
-      }
+
+      setPatientHistory(response.patients);
+      console.log(response);
     });
   };
-
+  //fetching works
   // Fetch All FDAR Records for a Specific Patient
   const fetchAllPatientFDARRecords = (patientID) => {
     GETGen(`${apiUrl}/data/retrieve/${patientID}`, (finalData) => {
-      if (finalData.Status === "ok") {
-        const formattedPatientData = {
-          nurse: currentUser, // or you can add a real nurse name if you have
-          patient: {
-            name: finalData.name || "Unnamed Patient",
-            datetime: finalData.dateTime || new Date().toISOString(),
-          },
-          fdar: finalData.fdar || [],
-        };
-        setPatientRecords(formattedPatientData);  // Set it in correct format
-      } else {
-        console.error("Failed to retrieve patient FDAR:", finalData);
-      }
+
+      const formattedPatientData = {
+        nurse: currentUser, // or you can add a real nurse name if you have
+        patient: {
+          name: finalData.name || "Unnamed Patient",
+          datetime: finalData.dateTime || new Date().toISOString(),
+        },
+        fdar: finalData.fdar || [],
+      };
+      setPatientRecords(formattedPatientData);  // Set it in correct format
+      console.log("Formatted Data" + formattedPatientData);
+      console.log("Patient Records " + patientRecords);
+
     });
   };
-  
+
 
 
   return (
@@ -404,7 +483,9 @@ function FDARGenAI() {
               <div key={index} className="flex justify-between items-center">
                 <button
                   onClick={() => {
-                    fetchAllPatientRecords();
+                    fetchAllPatientFDARRecords(patient.ID);
+                    setFdarData(patientRecords);
+                    setStep(6);
                   }}
                   className="text-sm text-left text-gray-700 hover:text-purple-700 font-medium"
                 >
@@ -478,10 +559,9 @@ function FDARGenAI() {
           {step === 6 && (
             <Step6FDARChart
               fdarData={patientRecords}  // Ensure this is the complete fdarData object
-              onSamePatient={handleSamePatientData} 
-              onNewPatient={handleNewPatientData}  // Set the next step for new patient
-              onSaveFDAR={finalizeAndSave}  // Finalize and save logic
-            />
+              handleGenerateWithSameData={handleSamePatientData}
+              handleNewPatientData={handleNewPatientData}
+            /> // Set the next step for new patient 
           )}
         </div>
       </div>

@@ -5,7 +5,7 @@ const Step3Diagnosis = ({
   diagnoses,
   selectedDiagnosis,
   setSelectedDiagnosis,
-  regenerateDiagnosisList,
+  regenerateList,
   onNext,
 }) => {
 
@@ -62,7 +62,7 @@ const Step3Diagnosis = ({
 
         <div className="flex gap-6 mt-6">
           <button
-            onClick={() => regenerateDiagnosisList("diagnosis", customDiagnosis, 5)}
+            onClick={() => regenerateList("diagnosis", customDiagnosis, 5)}
             className={`px-6 py-3 rounded-lg text-white ${isCustomDiagnosisEmpty
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-yellow-500 hover:bg-yellow-600"
