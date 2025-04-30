@@ -35,7 +35,7 @@ function FDARGenAI() {
   }
 
   //Current FDAR Container and Step state
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(6);
   const [fdarData, setFdarData] = useState({});
   //Set URL for Request
   const [apiUrl, setApiUrl] = useState("")
@@ -461,7 +461,7 @@ function FDARGenAI() {
         nurse: currentUser, // or you can add a real nurse name if you have
         patient: {
           name: finalData.name || "Unnamed Patient",
-          datetime: finalData.dateTime || new Date().toISOString(),
+          datetime: finalData.dateTime,
         },
         fdar: finalData.fdar || [],
       };
@@ -571,6 +571,7 @@ function FDARGenAI() {
               setStep={setStep}
               setAssessedData={setAssessedData}
               apiUrl={apiUrl}
+              GETGen={GETGen}
             />
           )}
 

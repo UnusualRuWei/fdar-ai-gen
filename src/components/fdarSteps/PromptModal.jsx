@@ -9,7 +9,8 @@ const PromptModal = ({
   setFocus,
   setaimessage,
   setStep,
-  resetDataExceptName,
+  apiUrl,
+  GETGen
 }) => {
   const [prompt, setPrompt] = useState("");
 
@@ -31,7 +32,6 @@ const PromptModal = ({
 
   const handleConfirm = () => {
     setAssessedData(prompt);
-    resetDataExceptName();
     
 
     GETGen(`${apiUrl}/core/generate/${patientID}?${query}`, (focusData) => {

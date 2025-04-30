@@ -10,6 +10,7 @@ const Step6FDARChart = ({
   setStep,
   setAssessedData,
   apiUrl,
+  GETGen
 }) => {
   const { nurse, patient = {}, fdar = [] } = fdarData;
   const { name, datetime, ID: patientID } = patient;
@@ -23,7 +24,7 @@ const Step6FDARChart = ({
       <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
         <p className="text-lg font-semibold">Nurse: {nurse}</p>
         <p className="text-lg font-semibold">Patient: {name}</p>
-        <p className="text-lg font-semibold">Date & Time: {new Date(datetime).toLocaleString()}</p>
+        <p className="text-lg font-semibold">Date & Time: {datetime}</p>
       </div>
 
       <div className="mt-6 max-h-[500px] overflow-y-auto">
@@ -88,6 +89,7 @@ const Step6FDARChart = ({
         setStep={setStep}
         resetDataExceptName={resetDataExceptName}
         apiUrl={apiUrl}
+        GETGen={GETGen}
       />
     </div>
   );
