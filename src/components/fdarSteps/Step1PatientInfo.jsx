@@ -1,20 +1,33 @@
-const Step1PatientInfo = ({ patientName, setPatientName, diagnosisDate, setDiagnosisDate, diagnosisTime, setDiagnosisTime, assessedData, setAssessedData, onNext }) => {
+const Step1PatientInfo = ({
+  patientID,
+  patientName,
+  setPatientName,
+  diagnosisDate,
+  setDiagnosisDate,
+  diagnosisTime,
+  setDiagnosisTime,
+  assessedData,
+  setAssessedData,
+  onNext,
+}) => {
+  const isExistingPatient = !!patientID;
+
   return (
     <div className="space-y-8 max-w-3xl mx-auto p-12">
       <h2 className="text-3xl font-semibold text-gray-900 text-center mb-8">
         Step 1: Patient Information
       </h2>
-
       <div className="space-y-8">
         {/* Patient Name */}
         <div>
           <label className="block text-lg font-medium text-gray-700">Patient Name</label>
           <input
             type="text"
-            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600"
+            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600 disabled:bg-gray-100"
             value={patientName}
             onChange={(e) => setPatientName(e.target.value)}
             placeholder="Enter patient's full name"
+            disabled={isExistingPatient}
           />
         </div>
 
@@ -23,9 +36,10 @@ const Step1PatientInfo = ({ patientName, setPatientName, diagnosisDate, setDiagn
           <label className="block text-lg font-medium text-gray-700">Date of Diagnosis</label>
           <input
             type="date"
-            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600"
+            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600 disabled:bg-gray-100"
             value={diagnosisDate}
             onChange={(e) => setDiagnosisDate(e.target.value)}
+            disabled={isExistingPatient}
           />
         </div>
 
@@ -34,9 +48,10 @@ const Step1PatientInfo = ({ patientName, setPatientName, diagnosisDate, setDiagn
           <label className="block text-lg font-medium text-gray-700">Time of Diagnosis</label>
           <input
             type="time"
-            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600"
+            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600 disabled:bg-gray-100"
             value={diagnosisTime}
             onChange={(e) => setDiagnosisTime(e.target.value)}
+            disabled={isExistingPatient}
           />
         </div>
 
@@ -44,18 +59,19 @@ const Step1PatientInfo = ({ patientName, setPatientName, diagnosisDate, setDiagn
         <div>
           <label className="block text-lg font-medium text-gray-700">Assessed Patient Data</label>
           <textarea
-            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600"
+            className="w-full border border-gray-300 rounded-lg p-4 mt-2 text-lg focus:outline-none focus:ring-3 focus:ring-purple-600 disabled:bg-gray-100"
             rows="6"
             value={assessedData}
             onChange={(e) => setAssessedData(e.target.value)}
             placeholder="Enter patient's assessed data"
+            disabled={isExistingPatient}
           />
         </div>
       </div>
 
       <div className="text-center mt-8">
-        <button 
-          onClick={onNext} 
+        <button
+          onClick={onNext}
           className="bg-purple-700 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-purple-800 focus:outline-none focus:ring-3 focus:ring-purple-600"
         >
           Submit and Continue

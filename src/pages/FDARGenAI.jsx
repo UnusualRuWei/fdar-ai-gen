@@ -62,6 +62,7 @@ function FDARGenAI() {
   const [responseListOutput, setResponseListOutput] = useState([]);
   const [recentFDARs, setRecentFDARs] = useState([]);
 
+
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("savedFDARs")) || [];
     if (Array.isArray(stored)) {
@@ -106,12 +107,28 @@ function FDARGenAI() {
     fetchAllPatientRecords();
   }, []);
 
-  const handleDeleteFDAR = (index) => {
-    const updated = [...recentFDARs];
-    updated.splice(index, 1);
-    setRecentFDARs(updated);
-    localStorage.setItem("savedFDARs", JSON.stringify(updated));
+  const resetDataExceptName = () => {
+    setPatientID("");
+    setDiagnosisDate("");
+    setDiagnosisTime("");
+    setAssessedData("");
+
+    // Step 2
+    setFocus([]);
+    setSelectedFocus([]);
+
+    // Step 3
+    setDiagnoses([]);
+    setSelectedDiagnosis("");
+
+    // Step 4
+    setListOfActions([]);
+    setSelectedAction("");
+
+    // Step 5
+    setResponseListOutput([]);
   };
+
 
   //Regenerates List
   const regenerateList = (section, customInput, amount) => {
@@ -180,7 +197,7 @@ function FDARGenAI() {
 
 
     // If the patient is new or no patientID exists
-    if (!patientID) {
+    if (patientID === "") {
       // First API call: Create a new patient
       GETGen(`${apiUrl}/core/new?${query}`, (data) => {
         if (data.status === "okay") {
@@ -274,7 +291,7 @@ function FDARGenAI() {
       intent: "set",
       selection: {
         section: "data",
-        items: diagnoses,
+        items: selectedDiagnosis,
       },
       prompt: "",
       amount: 10,
@@ -344,7 +361,7 @@ function FDARGenAI() {
     }).toString();
 
     const query1 = new URLSearchParams({
-      payload: JSON.stringify(setactionpayload),
+      payload: JSON.stringify(payload),
     }).toString();
 
 
@@ -395,11 +412,6 @@ function FDARGenAI() {
     });
   }
 
-  const handleNewPatientData = () => {
-
-    
-  }
-
   const finalizeAndSave = () => {
 
     GETGen(`${apiUrl}/core/final/${patientID}`, (finalData) => {
@@ -415,22 +427,13 @@ function FDARGenAI() {
   //For Save FDAR Button
   //Error here part
   const handleSamePatientData = () => {
+    resetDataExceptName();
     setStep(1);
   }
   //Error here part
-  const handleNewPatientDataSameName = () => {
-    // Preserve the current name and patientID
-    const name = patientRecords?.patient?.name || "";
-    const id = patientID;
-
-    // Clear other FDAR-related data
-    setFinalData({
-      name: name,
-      dateTime: "", // new datetime
-      fdar: [],     // clear chart entries
-    });
-
-    setPatientID(id); // optional, keep or clear based on how your backend maps data
+  const handleNewPatientData = () => {
+    resetDataExceptName();
+    setPatientID("");
     setStep(1);
   };
 
@@ -509,6 +512,7 @@ function FDARGenAI() {
           {step === 0 && <Welcomeuser message={aimessage} handleWelcome={handleStep0to1} />}
           {step === 1 && (
             <Step1PatientInfo
+              patientID={patientID}
               patientName={patientName}
               setPatientName={setPatientName}
               diagnosisDate={diagnosisDate}
