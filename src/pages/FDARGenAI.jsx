@@ -509,7 +509,7 @@ function FDARGenAI() {
 
       </div>
       <div className="w-3/4 flex flex-col p-4 max-h-screen overflow-y-auto">
-        <div className="bg-white p-6 rounded-2xl shadow-lg w-full flex flex-col">
+        <div className="bg-white p-6 rounded-2xl shadow-lg w-full flex flex-col h-full">
           {step === 0 && <Welcomeuser message={aimessage} handleWelcome={handleStep0to1} />}
           {step === 1 && (
             <Step1PatientInfo
