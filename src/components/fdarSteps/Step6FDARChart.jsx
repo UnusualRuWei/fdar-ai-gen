@@ -26,38 +26,41 @@ const Step6FDARChart = ({
         <p className="text-lg font-semibold">Date & Time: {new Date(datetime).toLocaleString()}</p>
       </div>
 
-      <div className="overflow-x-auto mt-6">
-        <table className="w-full border-collapse border min-w-[800px]">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-4 border text-lg">Focus</th>
-              <th className="p-4 border text-lg">Data</th>
-              <th className="p-4 border text-lg">Action</th>
-              <th className="p-4 border text-lg">Response</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fdar.map((entry, idx) => {
-              const normalize = (field) => Array.isArray(field) ? field : field ? [field] : [];
-              const focus = normalize(entry.focus);
-              const data = normalize(entry.data);
-              const action = normalize(entry.action);
-              const response = normalize(entry.response);
+      <div className="mt-6 max-h-[500px] overflow-y-auto">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border min-w-[800px]">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-4 border text-lg">Focus</th>
+                <th className="p-4 border text-lg">Data</th>
+                <th className="p-4 border text-lg">Action</th>
+                <th className="p-4 border text-lg">Response</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fdar.map((entry, idx) => {
+                const normalize = (field) => Array.isArray(field) ? field : field ? [field] : [];
+                const focus = normalize(entry.focus);
+                const data = normalize(entry.data);
+                const action = normalize(entry.action);
+                const response = normalize(entry.response);
 
-              const rowCount = Math.max(focus.length, data.length, action.length, response.length, 1);
+                const rowCount = Math.max(focus.length, data.length, action.length, response.length, 1);
 
-              return Array.from({ length: rowCount }).map((_, subIdx) => (
-                <tr key={`${idx}-${subIdx}`} className={subIdx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="p-4 border text-lg align-top">{focus[subIdx] || (subIdx === 0 ? "N/A" : "")}</td>
-                  <td className="p-4 border text-lg align-top">{data[subIdx] || ""}</td>
-                  <td className="p-4 border text-lg align-top">{action[subIdx] || ""}</td>
-                  <td className="p-4 border text-lg align-top">{response[subIdx] || ""}</td>
-                </tr>
-              ));
-            })}
-          </tbody>
-        </table>
+                return Array.from({ length: rowCount }).map((_, subIdx) => (
+                  <tr key={`${idx}-${subIdx}`} className={subIdx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="p-4 border text-lg align-top">{focus[subIdx] || (subIdx === 0 ? "N/A" : "")}</td>
+                    <td className="p-4 border text-lg align-top">{data[subIdx] || ""}</td>
+                    <td className="p-4 border text-lg align-top">{action[subIdx] || ""}</td>
+                    <td className="p-4 border text-lg align-top">{response[subIdx] || ""}</td>
+                  </tr>
+                ));
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
+
 
       <div className="text-center space-x-6 mt-8">
         <button
