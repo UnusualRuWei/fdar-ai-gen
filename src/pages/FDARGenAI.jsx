@@ -430,6 +430,7 @@ function FDARGenAI() {
     resetDataExceptName();
     setStep(1);
   }
+
   //Error here part
   const handleNewPatientData = () => {
     resetDataExceptName();
@@ -478,7 +479,7 @@ function FDARGenAI() {
       <div className="w-1/4 bg-white bg-opacity-50 shadow-lg p-6 flex flex-col justify-between backdrop-blur-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome, {currentUser}</h2>
 
-        <nav className="space-y-4">
+        <nav className="space-y-4 max-h-96 overflow-y-auto pr-2">
           <p className="block text-purple-600 font-semibold">Patient List</p>
 
           {patientHistory.length > 0 ? (
@@ -512,7 +513,6 @@ function FDARGenAI() {
           {step === 0 && <Welcomeuser message={aimessage} handleWelcome={handleStep0to1} />}
           {step === 1 && (
             <Step1PatientInfo
-              patientID={patientID}
               patientName={patientName}
               setPatientName={setPatientName}
               diagnosisDate={diagnosisDate}
@@ -562,11 +562,18 @@ function FDARGenAI() {
           )}
           {step === 6 && (
             <Step6FDARChart
-              fdarData={patientRecords}  // Ensure this is the complete fdarData object
+              fdarData={patientRecords}
               handleGenerateWithSameData={handleSamePatientData}
               handleNewPatientData={handleNewPatientData}
-            /> // Set the next step for new patient 
+              resetDataExceptName={resetDataExceptName}
+              setFocus={setFocus}
+              setaimessage={setaimessage}
+              setStep={setStep}
+              setAssessedData={setAssessedData}
+              apiUrl={apiUrl}
+            />
           )}
+
         </div>
       </div>
     </div>
