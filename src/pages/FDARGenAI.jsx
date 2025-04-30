@@ -300,7 +300,7 @@ function FDARGenAI() {
     const payload = {
       intent: "generate",
       selection: {
-        section: "data",
+        section: "action",
         items: [],
       },
       prompt: "",
@@ -349,7 +349,7 @@ function FDARGenAI() {
     const payload = {
       intent: "generate",
       selection: {
-        section: "action",
+        section: "response",
         items: [],
       },
       prompt: "",
