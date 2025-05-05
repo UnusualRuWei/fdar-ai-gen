@@ -10,7 +10,8 @@ const PromptModal = ({
   setaimessage,
   setStep,
   apiUrl,
-  GETGen
+  GETGen,
+  setPatientID
 }) => {
   const [prompt, setPrompt] = useState("");
 
@@ -32,16 +33,20 @@ const PromptModal = ({
 
   const handleConfirm = () => {
     setAssessedData(prompt);
-    
 
-    GETGen(`${apiUrl}/core/generate/${patientID}?${query}`, (focusData) => {
-      if (focusData.status === "okay") {
-        setFocus(focusData.generatedselections.items);
-        setaimessage(focusData.aimessage);
-        setStep(2);
-        onClose(); // Close modal after success
-      } else {
-        console.error("Failed to get initial focus list:", focusData);
+    GETGen(`${apiUrl}/core/new/${patientID}`, (returndata) => {
+      if(returndata.status === "ok"){
+        GETGen(`${apiUrl}/core/generate/${patientID}?${query}`, (focusData) => {
+          if (focusData.status === "okay") {
+            setFocus(focusData.generatedselections.items);
+            setaimessage(focusData.aimessage);
+            setPatientID(returndata.ID);
+            setStep(2);
+            onClose(); // Close modal after success
+          } else {
+            console.error("Failed to get initial focus list:", focusData);
+          }
+        });
       }
     });
   };

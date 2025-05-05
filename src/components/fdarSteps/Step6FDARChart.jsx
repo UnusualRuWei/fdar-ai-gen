@@ -10,7 +10,8 @@ const Step6FDARChart = ({
   setStep,
   setAssessedData,
   apiUrl,
-  GETGen
+  GETGen,
+  setPatientID
 }) => {
   const { nurse, patient = {}, fdar = [] } = fdarData;
   const { name, datetime, ID: patientID } = patient;
@@ -90,6 +91,7 @@ const Step6FDARChart = ({
         resetDataExceptName={resetDataExceptName}
         apiUrl={apiUrl}
         GETGen={GETGen}
+        setPatientID={setPatientID}
       />
     </div>
   );

@@ -35,7 +35,7 @@ function FDARGenAI() {
   }
 
   //Current FDAR Container and Step state
-  const [step, setStep] = useState(6);
+  const [step, setStep] = useState(0);
   const [fdarData, setFdarData] = useState({});
   //Set URL for Request
   const [apiUrl, setApiUrl] = useState("")
@@ -572,6 +572,7 @@ function FDARGenAI() {
               setAssessedData={setAssessedData}
               apiUrl={apiUrl}
               GETGen={GETGen}
+              setPatientID={setPatientID}
             />
           )}
 
